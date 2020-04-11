@@ -1,0 +1,39 @@
+TPO 2020 IP Franco Agustin Ojeda Zuñiga
+---------------------------------------
+consideraciones a entregar:
+- condigo fuente en un archivo llamado: “estadisticasProductos.php”
+- archivo con los datos a precargar “diseñoEstructuras.pdf”, dende guardamos los datos a precargar en el sistema.
+- documentar el codigo de la forma en la que se nos prefine en el javaDoc
+- consultar sobre las prubas unitarias
+- prepara alguna documentacion y cargarla en github
+- aprender a usar git con el manual
+
+--------------------------------------
+enunciado
+
+- usar dos arreglos en el sistema 1 de total vendido de todos los productos
+otro del producto mas vendido ese mes.
+	ej: 
+	ventas:
+	ventas[0] son las ventas del mes Enero
+	ventas[1] son las ventas del mes Febrero
+	...
+	ventas[11] son las ventas del mes Diciembre
+	
+	productos:
+	prodMasVendido[0] = ("prod"=> 'nombreProducto' , "precioProd" => elPrecioUnitario, "cantProd"=> cantProdVendidos); 
+	son los datos del producto mas vendido en el mes de Enero
+
+--------------------------------------
+Menu:
+
+--------------------------------------
+Requerimientos obligatorios:
+	-la estrcutura de los productos mas vendidos tiene que estar precargada el arreglo se llamara "prodMasVendido".
+con este arreglo cargaremos el arreglo de ventas realizando una operacion:
+	ventas[i] = prodMasVendido[i]['precioProd'] * prodMasVendido[i]['cantProd'];
+	-cargar ambas en el main del programa
+	-implementar el menu en un modulo
+	-implementar funciones utiles para los meses: meses->numero [0-11] y numero[0-11]->mes
+	-funciones de string a buscar
+	-el clasico menu do{ }while(S/n);

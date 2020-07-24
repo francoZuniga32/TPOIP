@@ -13,6 +13,7 @@ do {
     //mostramos una opcion del menu
     menu();
     $opcion = intval(fread(STDIN, 100));
+    $continuar = true;
     //dada la opcion ejecutamos dicho algoritmo
     switch ($opcion) {
         case 1:
@@ -36,15 +37,21 @@ do {
         case 5:
             //opcion 5 del inciso
             uasort($productos, 'compararPrecios');
+            /***
+             * print_r : Imprime información legible para humanos sobre una variable
+             * es mas rapido que hacer recorrer el arreglo con for ademas de que 
+             * puede sacar la dimencionalidad del arreglo (si tiene mas subarreglos
+             * ya que usa funciones recursivas).
+             */
             print_r($productos);
             break;
+        case 6:
+            $continuar = false;
         default :
             echo "Ingrese una opcion valida!!";
             break;
     }
-    echo "\n desea continuar? s/n";
-    $continuar = strtolower(trim(fgets(STDIN)));
-} while (strcmp($continuar, 's') == 0);
+} while ($continuar);
 
 /**
  * Precargamos la estructura de los productos mas vendidos por meses [0-11]
@@ -90,6 +97,8 @@ function menu() {
   2. Mostramos informacion del producto mas vendido en el año.
   3. Mustra el primer mes que supera el monto total de ventas dado por teclado
   4. Imprimir la informacion de un mes dado por el usuario
+  5. Ordenar los productos de mayor a menor y muestra todos los productos
+  6. Salir
   ";
 }
 

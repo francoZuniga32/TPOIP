@@ -1,5 +1,4 @@
 <?php
-
 /* * *
  * Trabajo Practico Obligatorio TUASySL
  * Ojeda Zuñiga Franco Agustin fai-1898
@@ -12,15 +11,12 @@ $ventas = cargarVentas($productos);
 do {
     //mostramos una opcion del menu
     menu();
-    $opcion = intval(trim(fgets(STDIN)));
+    echo ">> "; $opcion = intval(trim(fgets(STDIN)));
     $continuar = true;
     //dada la opcion ejecutamos dicho algoritmo
     switch ($opcion) {
         case 1:
-            //opcion 1 del inciso
-            $arregloVentaIngresada = ingresarVenta($productos, $ventas);
-            $ventas = $arregloVentaIngresada[0];
-            $productos = $arregloVentaIngresada[1];
+            ingresarVenta($productos, $ventas);
             break;
         case 2:
             //opcion 2 del inciso
@@ -47,8 +43,13 @@ do {
     }
 } while ($continuar);
 
+/**
+ * imprimimos el menu en pantalla
+ * @return void
+ */
 function menu() {
     echo "
+  ----------------------------------------------------------------------------------
   1. Ingresa la venta de un producto (mes, nombre producto, precio, cantidad vendida)
   2. Mostramos informacion del producto mas vendido en el año.
   3. Mustra el primer mes que supera el monto total de ventas dado por teclado
@@ -60,7 +61,7 @@ function menu() {
 
 /**
  * Precargamos la estructura de los productos mas vendidos por meses [0-11]
- * @return [arreglo] [retornamos el arreglo de los productos mas vendidos por meses]
+ * @return Array retornamos el arreglo de los productos mas vendidos por meses
  */
 function productosMasVendidos() {
     $produstosMasVendos = array(
@@ -81,10 +82,11 @@ function productosMasVendidos() {
     return $produstosMasVendos;
 }
 
-/* * *
- * cargamos los datos
+/**
+ * cargamos el arreglo de ventas con los productos iniciales
+ * @param  Array $arregloProductos es le arreglo inicial de productos
+ * @return Array                   arreglo de las ventas por meses
  */
-
 function cargarVentas($arregloProductos) {
     //creamos un arreglo de ventas
     $ventas = array();
@@ -97,129 +99,191 @@ function cargarVentas($arregloProductos) {
 }
 
 /**
- * primera opcion del menu el cual lo que vamos a hacer es, obtener los datos de un producto
- * para un mes
- * @return [type] [description]
+ * primera opcion del menu. ingresamos un productos para un mes, lo comparamos con
+ * el producto del mes actual y si sus ventas sin mayores lo remplazamos, e
+ * incrementamos el total de ventas de ese mes
+ * @return void
  */
-function ingresarVenta($arregloProductos, $arregloVentas) {
+function ingresarVenta(&$arregloProductos, &$arregloVentas) {
     //pedimos los datos del producto
-    echo "Ingrese el mes de la venta [enero-febrero] (en caso de escribirlo mal este se ponda en enero)";
-    $mesLeido = strtolower(trim(fgets(STDIN)));
-    $mes = mesToNumero($mesLeido);
+    $mes = ingresarMesValido();
     echo "Ingrese el nombre del producto vendido:\n";
     $producto = strtolower(trim(fgets(STDIN)));
     echo "Ingrese el precio de dicho producto:\n";
     $precio = intval(trim(fgets(STDIN)));
     echo "Ingrese la cantidad vendida:\n";
     $cantidad = intval(trim(fgets(STDIN)));
-    //funcion calculando e
-    return operadorIngresarVenta($arregloVentas, $arregloProductos, $mes, $producto, $precio, $cantidad);
+    //funcion calculando si el producto ingresado es el mas vendido y carga la venta
+    operadorIngresarVenta($arregloVentas, $arregloProductos, $mes, $producto, $precio, $cantidad);
 }
 
 /**
- * es la operaicion que se nececita en la operacion 1 en em menu:
- * 1. vamos a evaluar si las ventas de este producto son mayoreas a la que estan en ese meses
- * 2. vamos a incrementar las ventastotales del mes
- * @param  [type] $arregloVentas    [description]
- * @param  [type] $arregloProductos [description]
- * @param  [type] $producto         [description]
- * @param  [type] $precio           [description]
- * @param  [type] $cantidad         [description]
- * @return Array                    [arreglo[0]arreglo de ventas actualizado, arreglo[1] arreglo de productos actualizado]
+ * pide que ingrese un mientras este no se valido
+ * @return Number retorna el indice de mes ingresado por teclado
  */
-function operadorIngresarVenta($arregloVentas, $arregloProductos, $mes, $producto, $precio, $cantidad) {
-    $arreglos = array();
-    echo $mes;
-    //vamos a obtener las ventas totales del producto ingresado para el mes ingresado
-    $totalPrecioProductoEvaluar = $precio * $cantidad;
+function ingresarMesValido(){
+    $control = true;
+    $mesRetorno = 0;
+    while($control){
+        //pedimos los datos del producto
+        echo "Ingrese el mes [enero-diciembre]:\n";
+        $mesLeido = strtolower(trim(fgets(STDIN)));
+        $mes = mesToNumero($mesLeido);
+        if($mes > -1 && $mes < 12){
+           $control = false;
+           $mesRetorno = $mes;
+        }
+    }
+    return $mes;
+}
+
+/**
+ * operamos sobre los datos obtenidos anteriormente, si la ventas son mayores a
+ * las del producto del mes este pasa a ser le producto del mes.Ademas de cargan
+ * a las ventas del mes
+ * @param  Array  $arregloVentas      Arreglo de productos mas vendidos
+ * @param  Array  $arregloProductos   Arreglo de las ventas
+ * @param  Number $mes                indice del mes ingresado
+ * @param  String $producto           Nombre del producto ingresado
+ * @param  Number $precio             Precio del producto ingresado
+ * @param  Number $cantidad           Cantidad vendida del producto ingresado
+ * @return void
+ */
+function operadorIngresarVenta(&$arregloVentas, &$arregloProductos, $mes, $producto, $precio, $cantidad) {
+    $precioTotal = $precio * $cantidad;
     //vamos a obtener las ventas totales del producto mas vendido en el mes ingresado
-    $totalPrecioProductoMes = $arregloProductos[$mes]['precioProd'] * $arregloProductos[$mes]['cantProd'];
+    $precioTotalProductoAcutual = $arregloProductos[$mes]['precioProd'] * $arregloProductos[$mes]['cantProd'];
     // si las ventas del mes ingresado superan las del mes almacenado, cambiamos los productos
-    if ($totalPrecioProductoEvaluar > $totalPrecioProductoMes) {
+    if ($precioTotal > $precioTotalProductoAcutual) {
         $arregloProductos[$mes]['prod'] = $producto;
         $arregloProductos[$mes]['precioProd'] = $precio;
         $arregloProductos[$mes]['cantProd'] = $cantidad;
     }
 
     //incrementamos las ventas totales de ese mes
-    $arregloVentas[$mes] = $arregloVentas[$mes] + $totalPrecioProductoEvaluar;
-
-    array_push($arreglos, $arregloVentas);
-    array_push($arreglos, $arregloProductos);
-    return $arreglos;
+    $arregloVentas[$mes] = $arregloVentas[$mes] + $precioTotal;
 }
 
 /**
- * mostramos la informacion del mes con mayores ventas
- * @param  Array $arregloProductos  el arreglo de productos mas vendidos por mes
- * @return void
+ * imprimimos informacion sobre el producto mas vendido
+ * @param  Array $arregloProductos es el arreglo de productos donde buscar
+ * @return void                   
  */
 function productoMasVendido($arregloProductos) {
     //vamos a usar una variable para guardar el mayor precio
-    $mayorPrecio = $arregloProductos[0]['precioProd'] * $arregloProductos[0]['cantProd'];
+    $indice = masVendido($arregloProductos);
+
+    echo "El producto con mayor venta del año es:";
+    informacionMesProducto($arregloProductos[$indice]);
+}
+
+/**
+ * retorna el indice del producto mas vendido
+ * @param  [Array]  $productos arreglo de los productos donde buscar
+ * @return [Number]            es el indice donde se encuentra el producto mas vendido
+ */
+function masVendido($productos){
+    //vamos a usar una variable para guardar el mayor precio
+    $mayorPrecio = $productos[0]['precioProd'] * $productos[0]['cantProd'];
     $indiceMayor = 0;
     $indice = 0;
 
     //vamos a recorrer el arreglo guardando esta variable
-    foreach ($arregloProductos as $producto) {
+    foreach ($productos as $producto) {
         if ($mayorPrecio <= ($producto['precioProd'] * $producto['cantProd'])) {
             $mayorPrecio = $producto['precioProd'] * $producto['cantProd'];
             $indiceMayor = $indice;
         }
         $indice++;
     }
-
-    echo "El producto con mayor venta del año es:";
-    echo "Producto: " . $arregloProductos[$indiceMayor]['prod'] . " Precio: " . $arregloProductos[$indiceMayor]['precioProd'] . " Cantidad: " . $arregloProductos[$indiceMayor]['cantProd'];
+    return $indiceMayor;
 }
 
 /**
  * nos muestra el mes con mayores ventas a una ingresada por el usuario
  * @param  Array  $arregloVentas arreglo de las ventas mensuales
- * @return void                 
+ * @return void
  */
 function mesSuperaMonto($arregloVentas) {
     //pedimos un monto a la persona
     echo "Ingrese un monto a superar:\n";
     $montoTeclado = intval(trim(fgets(STDIN)));
-    $indiceMayor = 0;
-    $control = true;
-    $i = 0;
     //recorremos el arreglo para poder ubicar este mes
-    while ($i < count($arregloVentas) && $control) {
-        if ($arregloVentas[$i] >= $montoTeclado) {
-            $indiceMayor = $i;
-            $control = false;
-        }
-        $i = $i + 1;
-    }
+    $mes = buscarMes($arregloVentas, $montoTeclado);
 
-    echo "El mes que supera el monto es: " . numeroToMes($indiceMayor);
+    if($mes > -1){
+        echo "El mes que supera el monto es: " . numeroToMes($mes);
+    } else {
+        echo "no hay mes que supere el monto: ".$montoTeclado;
+    }
 }
 
-/* * *
- * 
+/**
+ * retorna el indice del primer mes que supera el monto pasado por parametro
+ * @param  Array  $ventas el arreglo de ventas donde buscar
+ * @param  Number $monto  el monto a superar
+ * @return Number         el indice donde se encuentra el mes que supera el monto
  */
+function buscarMes($ventas, $monto){
+    $retorno = -1;
+    $control = true;
+    $i = 0;
+    while($i < count($ventas) && $control){
+        if($ventas[$i] >= $monto){
+            $control = false;
+            $retorno = $i;
+        }
+        $i++;
+    }
+    return $retorno;
+}
 
+/**
+ * imprimosmos informacion de un mes ingresado por el usuario
+ * @param  Array $arregloProductos [description]
+ * @param  Array $arregloVentas    [description]
+ * @return type                   [description]
+ */
 function imprimirInformacionMes($arregloProductos, $arregloVentas) {
     //vamos a solicitar un mes
-    echo "ingrese un mes a imprimir:\n";
-    $nombreMes = strtolower(trim(fgets(STDIN)));
-    $mes = mesToNumero($nombreMes);
+    $mes = ingresarMesValido();
     if ($mes >= 0 && $mes <= 11) {
         //vamos a imprimir la informacion de ese mes
-        echo
-        "<$nombreMes>
-        El producto con mayor monto de venta: " . $arregloProductos[$mes]['prod'] . "
-        Cantidad de Productos Vendidos: " . $arregloProductos[$mes]['cantProd'] . "
-        Precio Unitario: $" . $arregloProductos[$mes]['precioProd'] . "
-        Monto de venta del producto: $" . $arregloProductos[$mes]['cantProd'] * $arregloProductos[$mes]['precioProd'] . "
-        Monto acumulado de ventas del mes diciembre: $" . $arregloVentas[$mes];
+        echo "<". numeroToMes($mes).">";
+        informacionMesProducto($arregloProductos[$mes]);
+        informacionMesVentas($arregloVentas[$mes]);
     } else {
         echo "ingrese un mes valido!!";
     }
 }
 
+/**
+ * mostramos la informacion de el producto ingresado.
+ * @param  Array $mes es el producto ingresado
+ * @return void      
+ */
+function informacionMesProducto($mes){
+    echo"
+    El producto con mayor monto de venta: " . $mes['prod'] . "
+    Cantidad de Productos Vendidos: " . $mes['cantProd'] . "
+    Precio Unitario: $" . $mes['precioProd'] . "
+    Monto de venta del producto: $" . $mes['cantProd'] * $mes['precioProd'];
+}
+
+/**
+ * mostramos las ventas dadas
+ * @param  Number $venta las ventas a mostrar
+ * @return void        
+ */
+function informacionMesVentas($venta){
+    echo "\n Monto acumulado de ventas del mes: $" . $venta;
+}
+
+/**
+ * ordenamos los productos de mayor a menor monto
+ * @param  Array $produtos es el arreglo de productos a ordenar
+ * @return void           
+ */
 function ordenarPorductosMayorMonto($produtos) {
     //copiamos el arreglo para no modificar el orden de los mesese
     $produtosCopia = copiarArreglo($produtos);
@@ -227,13 +291,19 @@ function ordenarPorductosMayorMonto($produtos) {
     uasort($produtosCopia, 'compararPrecios');
     /*     * *
      * print_r : Imprime información legible para humanos sobre una variable
-     * es mas rapido que hacer recorrer el arreglo con for ademas de que 
+     * es mas rapido que hacer recorrer el arreglo con for ademas de que
      * puede sacar la dimencionalidad del arreglo (si tiene mas subarreglos
      * ya que usa funciones recursivas).
      */
     print_r($produtosCopia);
 }
 
+/**
+ * es la funcoin que compara los precios de los productos
+ * @param  Array $producto1 primer producto
+ * @param  Array $producto2 segundo producto
+ * @return Number           es el resultado de la comparacion
+ */
 function compararPrecios($producto1, $producto2) {
     $mayorPrecio1 = $producto1['precioProd'] * $producto1['cantProd'];
     $mayorPrecio2 = $producto2['precioProd'] * $producto2['cantProd'];
@@ -246,6 +316,11 @@ function compararPrecios($producto1, $producto2) {
     return $retorno;
 }
 
+/**
+ * realiza una copia del arraglo provisto
+ * @param  Array $arreglo es el arreglo a clonar o copiar
+ * @return Array          es la copia de arreglo
+ */
 function copiarArreglo($arreglo){
     $produtosArrayObject = new ArrayObject($arreglo);
     return $produtosArrayObject->getArrayCopy();
@@ -253,7 +328,7 @@ function copiarArreglo($arreglo){
 
 /**
  * dado un numero, obtenemos el mes correspondiente
- * @param  Int $numero el numero del mes que queremos recuperar
+ * @param  Number $numero el numero del mes que queremos recuperar
  * @return String      el mes resultado del pedido
  */
 function numeroToMes($numero) {
@@ -296,7 +371,7 @@ function numeroToMes($numero) {
             $retorno = "diciembre";
             break;
         default:
-            $retorno = "enero";
+            $retorno = "No Existe dicho Mes";
             break;
     }
     return $retorno;
@@ -308,7 +383,7 @@ function numeroToMes($numero) {
  * @return Int      el numero correspondiente al mes
  */
 function mesToNumero($mes) {
-    $retorno = 0;
+    $retorno = -1;
     switch ($mes) {
         case "enero":
             $retorno = 0;
@@ -345,10 +420,4 @@ function mesToNumero($mes) {
             break;
     }
     return $retorno;
-}
-
-function listar($arregloProductos, $ventas) {
-    for ($i = 0; $i < count($arregloProductos); $i++) {
-        echo $arregloProductos[$i]['prod'] . "--\t\t" . $arregloProductos[$i]['precioProd'] . "--\t\t" . $arregloProductos[$i]['cantProd'] . "--\t\t" . $ventas[$i] . "\n";
-    }
 }

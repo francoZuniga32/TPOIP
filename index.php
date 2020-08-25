@@ -172,8 +172,8 @@ function operadorIngresarVenta(&$arregloVentas, &$arregloProductos, $mes, $produ
 function productoMasVendido($arregloProductos) {
     //vamos a usar una variable para guardar el mayor precio
     $indice = masVendido($arregloProductos);
-
-    echo "El producto con mayor venta del año es:";
+    echo "El mes con mayor monto de ventas es: ". numeroToMes($indice)."\n";
+    echo "El producto con mayor venta del año:";
     informacionMesProducto($arregloProductos[$indice]);
 }
 
@@ -247,14 +247,11 @@ function buscarMes($ventas, $monto){
 function imprimirInformacionMes($arregloProductos, $arregloVentas) {
     //vamos a solicitar un mes
     $mes = ingresarMesValido();
-    if ($mes >= 0 && $mes <= 11) {
-        //vamos a imprimir la informacion de ese mes
+    //vamos a imprimir la informacion de ese mes
         echo "<". numeroToMes($mes).">";
         informacionMesProducto($arregloProductos[$mes]);
         informacionMesVentas($arregloVentas[$mes]);
-    } else {
-        echo "ingrese un mes valido!!";
-    }
+       
 }
 
 /**
